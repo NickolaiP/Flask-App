@@ -2,11 +2,13 @@ import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 
+#Фунция для подключения к базе данных
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
+#Функция для получения поста
 def get_post(post_id):
     conn = get_db_connection()
     post = conn.execute('SELECT * FROM posts WHERE id = ?',
@@ -19,6 +21,7 @@ def get_post(post_id):
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
+#Функция корневого каталога, выдающая все посты
 @app.route('/')
 def index():
     conn = get_db_connection()
@@ -26,11 +29,13 @@ def index():
     conn.close()
     return render_template('index.html', posts=posts)
 
+#Функция, возвращающая конкретный пост
 @app.route('/<int:post_id>')
 def post(post_id):
     post = get_post(post_id)
     return render_template('post.html', post=post)
 
+#Функция создания поста
 @app.route('/create', methods=('GET', 'POST'))
 def create():
     if request.method == 'POST':
@@ -49,6 +54,7 @@ def create():
 
     return render_template('create.html')
 
+#Фнуция изменения поста
 @app.route('/<int:id>/edit', methods=('GET', 'POST'))
 def edit(id):
     post = get_post(id)
@@ -70,6 +76,7 @@ def edit(id):
 
     return render_template('edit.html', post=post)
 
+#Функция удаления поста
 @app.route('/<int:id>/delete', methods=('POST',))
 def delete(id):
     post = get_post(id)
